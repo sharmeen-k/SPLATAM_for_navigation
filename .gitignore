@@ -1,0 +1,7 @@
+*.ply
+*.pt
+*.pth
+*.zip
+data/
+output/
+__pycache__/
