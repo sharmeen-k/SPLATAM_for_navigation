@@ -64,7 +64,7 @@
       <li><strong>A data pipeline</strong> that converts Intel RealSense ROS&nbsp;2
         <code>.mcap</code> recordings into the NeRFCapture layout SplaTAM expects.</li>
       <li><strong>Evaluation</strong> of full RGB-D SLAM (tracking + mapping, no ground-truth
-        poses) on four custom sequences.</li>
+        poses) on four custom sequences with high-ram hardware (A100 GPU -- 80GB GPU RAM with 167GB system RAM).</li>
     </ol>
     <p>
       The custom data forms a <strong>2&times;2 matrix</strong>: two camera platforms
@@ -134,8 +134,8 @@
  └─────────────┬────────────┘
                ▼
  ┌──────────────────────────┐
- │  Evaluation              │   PSNR · MS-SSIM · LPIPS ·
- │                          │   Depth-L1 · ATE
+ │   Evaluation on High     │   PSNR · MS-SSIM · LPIPS ·
+ │      RAM A100 GPU        │   Depth-L1 · ATE
  └──────────────────────────┘
 
  * staging to the runtime's local disk avoids the Google Drive FUSE
@@ -203,7 +203,7 @@
         climbs as the map grows. Over the final stretch of the office0 run (frames 1200–1999) the
         cost averaged <strong>3.74&nbsp;s/frame tracking + 6.12&nbsp;s/frame mapping (≈10&nbsp;s per
         frame)</strong>, roughly <strong>8× slower</strong> than the ~1.2&nbsp;s/frame we measured
-        on the small, bounded custom scenes.
+        on the small, bounded custom scenes. And this is on fancy hardware. 
       </p>
       <p>
         This is a limitation the SplaTAM authors acknowledge, and it shows up directly in our own
@@ -317,9 +317,6 @@
         sequences is therefore not reported, and even the robot ATE values lack an external
         trajectory to validate against; they can only be read as a measure of drift, not as error
         against ground-truth poses.</li>
-      <li><strong>Sensor depth range.</strong> The RealSense D455 returns reliable depth only
-        within ~0.5–3&nbsp;m; open lab scenes exceed this, producing noisy depth and poor Gaussian
-        initialization.</li>
       <li><strong>Assumed depth↔color extrinsic.</strong> The bags carry no <code>/tf_static</code>,
         so the converter assumes an identity depth-to-color transform (valid to ~15&nbsp;mm for
         the D455, but still an approximation).</li>
@@ -333,7 +330,7 @@
   <section id="future">
     <h2>Future Work</h2>
     <ul>
-      <li><strong>Add real ground truth.</strong> Fix the LiDAR <code>/scan</code> QoS so it records,
+      <li><strong>Add camera pose ground truth.</strong> Fix the LiDAR <code>/scan</code> QoS so it records,
         or add a motion-capture / VIO reference, to evaluate ATE properly instead of marking it
         N/A.</li>
       <li><strong>Inject pose priors.</strong> Seed SplaTAM tracking with wheel odometry or VIO
@@ -342,10 +339,8 @@
         reliable range and add depth outlier filtering / confidence masking for open environments.</li>
       <li><strong>Investigate the robot-desk anomaly.</strong> Pin down the proximity / reflective-
         surface cause behind seq4's degraded depth validity.</li>
-      <li><strong>Broaden the matrix.</strong> Capture more and longer sequences across the
-        platform × topology grid, and run them in parallel on higher-VRAM hardware (e.g. A100).</li>
       <li><strong>Close the navigation loop.</strong> Feed the reconstructed Gaussian map into a
-        downstream planning / navigation stack, the original motivation for the project.</li>
+        downstream planning / navigation stack, the original motivation for the project (still an open research area).</li>
     </ul>
   </section>
 
