@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SplaTAM for Navigation — EE243 Project</title>
+<meta name="description" content="Testing SplaTAM (Gaussian Splatting RGB-D SLAM) on custom RealSense footage for indoor robot navigation. EE243 Computer Vision project." />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">EE243 · Computer Vision · Course Project</p>
+    <h1>SplaTAM for Navigation</h1>
+    <p class="tagline">
+      Testing <a href="https://github.com/spla-tam/SplaTAM">SplaTAM</a> — Gaussian-Splatting dense
+      RGB-D SLAM — on custom Intel RealSense footage captured for indoor robot navigation.
+    </p>
+
+    <!-- TODO: replace with the real team member names -->
+    <p class="authors">Team: <span class="placeholder">Author names — TODO</span></p>
+
+    <nav class="links">
+      <a class="btn" href="https://github.com/sharmeen-k/SPLATAM_for_navigation">GitHub Repo</a>
+      <a class="btn" href="splatam_paper.pdf">SplaTAM Paper (PDF)</a>
+      <a class="btn" href="#video">Demo Video</a>
+      <a class="btn" href="#results">Results</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===================== OVERVIEW ===================== -->
+  <section id="overview">
+    <h2>Overview</h2>
+    <p>
+      This project is an <strong>experiment harness</strong> around
+      <a href="https://github.com/spla-tam/SplaTAM">SplaTAM</a> (<em>Splat, Track &amp; Map 3D
+      Gaussians for Dense RGB-D SLAM</em>, Keetha et al., CVPR 2024). We do not re-implement the
+      method; instead we drive the upstream system on our own data to evaluate how well
+      Gaussian-Splatting SLAM holds up on footage relevant to robot navigation.
+    </p>
+    <p>The work has three parts:</p>
+    <ol>
+      <li><strong>Baseline reproduction</strong> on the Replica dataset (<code>room0</code>,
+        <code>office0</code>) to validate our setup against published numbers.</li>
+      <li><strong>A data pipeline</strong> that converts Intel RealSense ROS&nbsp;2
+        <code>.mcap</code> recordings into the NeRFCapture layout SplaTAM expects.</li>
+      <li><strong>Evaluation</strong> of full RGB-D SLAM (tracking + mapping, no ground-truth
+        poses) on four custom sequences — both handheld and robot-mounted.</li>
+    </ol>
+  </section>
+
+  <!-- ===================== DEMO VIDEO ===================== -->
+  <section id="video">
+    <h2>Demo Video</h2>
+    <p class="muted">A walkthrough of the project, pipeline, and live results.</p>
+    <div class="video-frame placeholder-box">
+      <!-- TODO: drop in the demo video.
+           Option A (YouTube): replace this block with
+             <iframe src="https://www.youtube.com/embed/VIDEO_ID" allowfullscreen></iframe>
+           Option B (local file): add the file to assets/ and use
+             <video controls src="assets/demo.mp4"></video> -->
+      <span>▶ Demo video goes here — TODO</span>
+    </div>
+  </section>
+
+  <!-- ===================== METHOD / PIPELINE ===================== -->
+  <section id="pipeline">
+    <h2>Pipeline</h2>
+    <p>
+      Footage is recorded on an Intel RealSense D4xx (640×480 color + depth) as ROS&nbsp;2
+      <code>.mcap</code> bags. Our converter (<code>mcap2dataset.py</code>) turns a bag into a
+      SplaTAM-ready dataset:
+    </p>
+    <ol class="steps">
+      <li>Read color + depth intrinsics from the <code>CameraInfo</code> topics.</li>
+      <li>Undistort the color image.</li>
+      <li>Reproject depth into the color frame (identity extrinsic, Z-min collision policy).</li>
+      <li>Rescale depth to SplaTAM's fixed scale (<code>uint16 / 6553.5 = meters</code>).</li>
+      <li>Time-sync RGB &amp; depth within a 30&nbsp;ms window.</li>
+      <li>Write <code>rgb/</code>, <code>depth/</code>, and <code>transforms.json</code> (identity
+        poses — SplaTAM estimates them).</li>
+    </ol>
+    <div class="placeholder-box diagram">
+      <!-- TODO: optional pipeline diagram / flowchart -->
+      <span>Pipeline diagram (optional) — TODO</span>
+    </div>
+  </section>
+
+  <!-- ===================== RESULTS ===================== -->
+  <section id="results">
+    <h2>Results</h2>
+
+    <h3>Baseline sanity check — Replica</h3>
+    <p>
+      Before touching custom data we reproduced the Replica baseline. On <code>room0</code> our
+      numbers match the paper closely, confirming the harness is faithful.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Scene</th><th>PSNR ↑</th><th>MS-SSIM ↑</th><th>LPIPS ↓</th><th>Depth RMSE ↓</th><th>ATE RMSE ↓</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>room0</code></td><td>32.82</td><td>0.977</td><td>0.072</td><td>0.49 cm</td><td>—</td></tr>
+          <tr><td><code>office0</code></td><td>38.71</td><td>0.984</td><td>0.082</td><td>0.37 cm</td><td>0.46 cm</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">
+      Paper vs. ours on <code>room0</code>: PSNR 33.18 / 32.82 · SSIM 0.972 / 0.977 · LPIPS 0.074 / 0.072.
+    </p>
+
+    <h3>Custom sequences — full SLAM (estimated poses)</h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Sequence</th><th>Capture</th><th>Frames</th><th>PSNR ↑</th><th>MS-SSIM ↑</th><th>LPIPS ↓</th><th>Depth RMSE ↓</th><th>ATE RMSE ↓</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>seq1</td><td>Room, handheld</td><td>873</td><td>20.43</td><td>0.812</td><td>0.220</td><td>15.48 cm</td><td class="bad">209.74 cm</td></tr>
+          <tr><td>seq2</td><td>Desk, handheld</td><td>876</td><td>26.18</td><td>0.906</td><td>0.109</td><td>4.80 cm</td><td class="bad">121.26 cm</td></tr>
+          <tr><td>seq3</td><td>Lab, robot</td><td>963</td><td>15.80</td><td>0.731</td><td>0.295</td><td>5.07 cm</td><td>85.52 cm</td></tr>
+          <tr><td>seq4</td><td>Desk, robot</td><td>958</td><td>23.52</td><td>0.897</td><td>0.135</td><td>10.50 cm</td><td class="good">26.50 cm</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ---------- SUCCESSFUL OUTCOMES ---------- -->
+    <h3 class="good-h">✓ Successful outcomes</h3>
+    <p>
+      On the desk and robot-mounted sequences, rendering quality is strong (seq2: PSNR 26.2,
+      SSIM 0.91) and seq4 achieves the lowest trajectory error (ATE 26.5 cm). These confirm the
+      pipeline produces usable maps when motion is moderate and depth is dense.
+    </p>
+    <div class="gallery">
+      <figure class="placeholder-box">
+        <span>seq4 — rendered RGB vs. ground truth</span>
+        <figcaption>TODO: add comparison image</figcaption>
+      </figure>
+      <figure class="placeholder-box">
+        <span>seq2 — Gaussian map / reconstruction</span>
+        <figcaption>TODO: add render</figcaption>
+      </figure>
+      <figure class="placeholder-box">
+        <span>Replica office0 — high-fidelity baseline</span>
+        <figcaption>TODO: add render</figcaption>
+      </figure>
+    </div>
+
+    <!-- ---------- FAILURE CASES ---------- -->
+    <h3 class="bad-h">✗ Failure cases</h3>
+    <p>
+      The handheld sequences (seq1, seq2) show large trajectory drift (ATE up to ~210 cm) despite
+      decent per-frame rendering. Fast hand motion plus sparse/noisy RealSense depth makes camera
+      tracking unreliable without ground-truth poses. seq3 also has the weakest rendering
+      (PSNR 15.8) — <span class="placeholder">likely cause: TODO confirm (motion blur? texture-poor lab?)</span>.
+    </p>
+    <div class="gallery">
+      <figure class="placeholder-box">
+        <span>seq1 — trajectory drift visualization</span>
+        <figcaption>TODO: add image</figcaption>
+      </figure>
+      <figure class="placeholder-box">
+        <span>seq3 — degraded / blurry reconstruction</span>
+        <figcaption>TODO: add image</figcaption>
+      </figure>
+    </div>
+    <p class="muted">
+      Note: the pipeline also revealed practical issues — depth maps average only ~59% valid pixels
+      on raw bags, and the Colab runtime repeatedly died mid-run, requiring checkpoint resumes.
+    </p>
+  </section>
+
+  <!-- ===================== LIMITATIONS ===================== -->
+  <section id="limitations">
+    <h2>Limitations</h2>
+    <ul class="placeholder-list">
+      <li>No ground-truth trajectory for the custom sequences, so ATE is measured against
+        SplaTAM's own pose estimates — <span class="placeholder">TODO: clarify how ATE was computed for real data</span>.</li>
+      <li>Depth–color extrinsic assumed identity (no <code>/tf_static</code> in the bags).</li>
+      <li><span class="placeholder">TODO: hardware/runtime constraints (Tesla T4, Colab time limits, memory).</span></li>
+      <li><span class="placeholder">TODO: any other limitations the team observed.</span></li>
+    </ul>
+  </section>
+
+  <!-- ===================== FUTURE WORK ===================== -->
+  <section id="future">
+    <h2>Future Work</h2>
+    <ul class="placeholder-list">
+      <li><span class="placeholder">TODO: e.g. integrate with a navigation / planning stack.</span></li>
+      <li><span class="placeholder">TODO: better depth filtering or pose priors from odometry.</span></li>
+      <li><span class="placeholder">TODO: add more / longer sequences.</span></li>
+    </ul>
+  </section>
+
+  <!-- ===================== TEAM ===================== -->
+  <section id="team">
+    <h2>Team &amp; Contributions</h2>
+    <div class="placeholder-box small">
+      <span>TODO: team member names and who did what</span>
+    </div>
+  </section>
+
+  <!-- ===================== REFERENCES ===================== -->
+  <section id="references">
+    <h2>References</h2>
+    <ul>
+      <li>N. Keetha et al., <em>SplaTAM: Splat, Track &amp; Map 3D Gaussians for Dense RGB-D SLAM</em>, CVPR 2024 —
+        <a href="https://github.com/spla-tam/SplaTAM">code</a>, <a href="splatam_paper.pdf">PDF</a>.</li>
+      <li>Gaussian rasterizer:
+        <a href="https://github.com/JonathonLuiten/diff-gaussian-rasterization-w-depth">diff-gaussian-rasterization-w-depth</a>.</li>
+      <li>Replica dataset (baseline scenes).</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>EE243 Computer Vision · Course Project · Built on <a href="https://github.com/spla-tam/SplaTAM">SplaTAM</a>.</p>
+  </div>
+</footer>
+
+</body>
+</html>
