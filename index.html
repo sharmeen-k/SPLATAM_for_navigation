@@ -141,6 +141,66 @@
       Paper vs. ours on <code>room0</code>: PSNR 33.18 / 32.82 · SSIM 0.972 / 0.977 · LPIPS 0.074 / 0.072.
     </p>
 
+      <section id="limitations">
+    <h2>Limitations</h2>
+
+    <div class="callout">
+      <h3>Unbounded Gaussian growth (map bloat)</h3>
+      <p>
+        SplaTAM's map <em>is</em> its collection of 3D Gaussians, and it adds a new Gaussian at
+        every pixel the current map doesn't already explain — wherever the rendered silhouette
+        falls below 0.5, or the depth error is large. In a small bounded scene this saturates after
+        the first few frames; in a large scene the camera keeps revealing new geometry (much of it
+        beyond the D455's reliable depth range, so it is seeded at noisy positions), and the map
+        never stops growing. Pruning doesn't keep pace with densification.
+      </p>
+      <p>
+        Our clearest evidence is the <strong>Replica office0</strong> baseline. Our diagnostics show
+        the map already holding <strong>≈4.96M Gaussians at frame&nbsp;800</strong> and still
+        climbing at <strong>~1,000 Gaussians per frame</strong> to <strong>≈5.40M by
+        frame&nbsp;1200</strong> — with the saved checkpoint growing from <strong>238&nbsp;MB to
+        259&nbsp;MB</strong> over the same span, and still rising through the end of the
+        2000-frame run.
+      </p>
+      <p>
+        Because every frame must rasterize and optimize the <em>entire</em> map, per-frame compute
+        climbs as the map grows. Over the final stretch of the office0 run (frames 1200–1999) the
+        cost averaged <strong>3.74&nbsp;s/frame tracking + 6.12&nbsp;s/frame mapping (≈10&nbsp;s per
+        frame)</strong> — roughly <strong>8× slower</strong> than the ~1.2&nbsp;s/frame we measured
+        on the small, bounded custom scenes.
+      </p>
+      <p class="muted">
+        This is a limitation the SplaTAM authors acknowledge, and it shows up directly in our own
+        data: the open-lab sequences carry far heavier maps than the bounded-desk sequences, which
+        is part of why the lab scenes degrade and slow down.
+      </p>
+    </div>
+
+    <ul>
+      <li><strong>No independent ground truth.</strong> The custom sequences have all-identity
+        poses in <code>transforms.json</code> and no VIO prior, and the LiDAR <code>/scan</code>
+        topic recorded zero messages (a subscription QoS timing issue). ATE for the handheld
+        sequences is therefore not reported, and even the robot ATE values lack an external
+        trajectory to validate against.</li>
+      <li><strong>Sensor depth range.</strong> The RealSense D455 returns reliable depth only
+        within ~0.5–3&nbsp;m; open lab scenes exceed this, producing noisy depth and poor Gaussian
+        initialization.</li>
+      <li><strong>Assumed depth↔color extrinsic.</strong> The bags carry no <code>/tf_static</code>,
+        so the converter assumes an identity depth-to-color transform (valid to ~15&nbsp;mm for
+        the D455, but still an approximation).</li>
+      <li><strong>Capture instability.</strong> Recording at 1280×720&nbsp;@&nbsp;30&nbsp;fps
+        overloaded the robot's Raspberry Pi and dropped frames; downsampling to
+        640×480&nbsp;@&nbsp;15&nbsp;fps fixed it, but some frames are still dropped across all
+        sequences.</li>
+      <li><strong>Runtime fragility.</strong> Streaming the dataset off the Google Drive FUSE mount
+        crashed runs (I/O rate-limiting); data had to be staged to the Colab runtime's local disk,
+        and long runs depended on checkpoint resumes to survive disconnects.</li>
+      <li><strong>Zero-prior tracking only.</strong> Camera poses are estimated purely from dense
+        RGB-D alignment with no odometry or motion prior, which is the main source of drift in
+        large, low-texture spaces.</li>
+    </ul>
+  </section>
+
     <h3>Custom sequences — full SLAM (zero-prior tracking)</h3>
     <p class="muted">
       The 2&times;2 matrix: platform (handheld / robot) &times; topology (open lab / bounded desk).
@@ -223,67 +283,6 @@
       raw bags, and runs repeatedly died on the Google Drive FUSE mount until data was staged to
       local disk, requiring checkpoint resumes.
     </p>
-  </section>
-
-  <!-- ===================== LIMITATIONS ===================== -->
-  <section id="limitations">
-    <h2>Limitations</h2>
-
-    <div class="callout">
-      <h3>Unbounded Gaussian growth (map bloat)</h3>
-      <p>
-        SplaTAM's map <em>is</em> its collection of 3D Gaussians, and it adds a new Gaussian at
-        every pixel the current map doesn't already explain — wherever the rendered silhouette
-        falls below 0.5, or the depth error is large. In a small bounded scene this saturates after
-        the first few frames; in a large scene the camera keeps revealing new geometry (much of it
-        beyond the D455's reliable depth range, so it is seeded at noisy positions), and the map
-        never stops growing. Pruning doesn't keep pace with densification.
-      </p>
-      <p>
-        Our clearest evidence is the <strong>Replica office0</strong> baseline. Our diagnostics show
-        the map already holding <strong>≈4.96M Gaussians at frame&nbsp;800</strong> and still
-        climbing at <strong>~1,000 Gaussians per frame</strong> to <strong>≈5.40M by
-        frame&nbsp;1200</strong> — with the saved checkpoint growing from <strong>238&nbsp;MB to
-        259&nbsp;MB</strong> over the same span, and still rising through the end of the
-        2000-frame run.
-      </p>
-      <p>
-        Because every frame must rasterize and optimize the <em>entire</em> map, per-frame compute
-        climbs as the map grows. Over the final stretch of the office0 run (frames 1200–1999) the
-        cost averaged <strong>3.74&nbsp;s/frame tracking + 6.12&nbsp;s/frame mapping (≈10&nbsp;s per
-        frame)</strong> — roughly <strong>8× slower</strong> than the ~1.2&nbsp;s/frame we measured
-        on the small, bounded custom scenes.
-      </p>
-      <p class="muted">
-        This is a limitation the SplaTAM authors acknowledge, and it shows up directly in our own
-        data: the open-lab sequences carry far heavier maps than the bounded-desk sequences, which
-        is part of why the lab scenes degrade and slow down.
-      </p>
-    </div>
-
-    <ul>
-      <li><strong>No independent ground truth.</strong> The custom sequences have all-identity
-        poses in <code>transforms.json</code> and no VIO prior, and the LiDAR <code>/scan</code>
-        topic recorded zero messages (a subscription QoS timing issue). ATE for the handheld
-        sequences is therefore not reported, and even the robot ATE values lack an external
-        trajectory to validate against.</li>
-      <li><strong>Sensor depth range.</strong> The RealSense D455 returns reliable depth only
-        within ~0.5–3&nbsp;m; open lab scenes exceed this, producing noisy depth and poor Gaussian
-        initialization.</li>
-      <li><strong>Assumed depth↔color extrinsic.</strong> The bags carry no <code>/tf_static</code>,
-        so the converter assumes an identity depth-to-color transform (valid to ~15&nbsp;mm for
-        the D455, but still an approximation).</li>
-      <li><strong>Capture instability.</strong> Recording at 1280×720&nbsp;@&nbsp;30&nbsp;fps
-        overloaded the robot's Raspberry Pi and dropped frames; downsampling to
-        640×480&nbsp;@&nbsp;15&nbsp;fps fixed it, but some frames are still dropped across all
-        sequences.</li>
-      <li><strong>Runtime fragility.</strong> Streaming the dataset off the Google Drive FUSE mount
-        crashed runs (I/O rate-limiting); data had to be staged to the Colab runtime's local disk,
-        and long runs depended on checkpoint resumes to survive disconnects.</li>
-      <li><strong>Zero-prior tracking only.</strong> Camera poses are estimated purely from dense
-        RGB-D alignment with no odometry or motion prior, which is the main source of drift in
-        large, low-texture spaces.</li>
-    </ul>
   </section>
 
   <!-- ===================== FUTURE WORK ===================== -->
