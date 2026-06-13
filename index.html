@@ -23,8 +23,8 @@
     <nav class="links">
       <a class="btn" href="https://github.com/sharmeen-k/SPLATAM_for_navigation">GitHub Repo</a>
       <a class="btn" href="splatam_paper.pdf">SplaTAM Paper (PDF)</a>
-      <a class="btn" href="#video">Demo Video</a>
       <a class="btn" href="#results">Results</a>
+      <a class="btn" href="#limitations">Limitations</a>
     </nav>
   </div>
 </header>
@@ -58,9 +58,6 @@
       how the camera moves, or what the scene looks like.
     </p>
   </section>
-
-  <!-- ===================== DEMO VIDEO ===================== -->
-
 
   <!-- ===================== METHOD / PIPELINE ===================== -->
   <section id="pipeline">
@@ -188,25 +185,6 @@
       </p>
     </div>
 
-    <ul>
-      <li><strong>No independent ground truth.</strong> The custom sequences have all-identity
-        poses in <code>transforms.json</code> and no VIO prior, and the LiDAR <code>/scan</code>
-        topic recorded zero messages (a subscription QoS timing issue). ATE for the handheld
-        sequences is therefore not reported, and even the robot ATE values lack an external
-        trajectory to validate against. Therefore, these values can only be interpreted as a measure 
-        of drift rather than comparison with Ground Truth poses.</li>
-      <li><strong>Sensor depth range.</strong> The RealSense D455 returns reliable depth only
-        within ~0.5–3&nbsp;m; open lab scenes exceed this, producing noisy depth and poor Gaussian
-        initialization.</li>
-      <li><strong>Assumed depth↔color extrinsic.</strong> The bags carry no <code>/tf_static</code>,
-        so the converter assumes an identity depth-to-color transform (valid to ~15&nbsp;mm for
-        the D455, but still an approximation).</li>
-      <li><strong>Zero-prior tracking only.</strong> Camera poses are estimated purely from dense
-        RGB-D alignment with no odometry or motion prior, which is the main source of drift in
-        large, low-texture spaces.</li>
-    </ul>
-  </section>
-
     <h3>Custom sequences — full SLAM (zero-prior tracking)</h3>
     <p class="muted">
       The 2&times;2 matrix: platform (handheld / robot) &times; topology (open lab / bounded desk).
@@ -244,8 +222,8 @@
         <figcaption>seq2 (handheld, desk) — sharpest reconstruction of the set (PSNR 26.2).</figcaption>
       </figure>
       <figure>
-        <img src="assets/replica_office0.png" alt="Replica office0 ground-truth vs. rasterized RGB and depth panel" />
-        <figcaption>Replica office0 — high-fidelity baseline (frame PSNR 38.4, near-zero depth diff).</figcaption>
+        <video controls muted playsinline preload="metadata" src="assets/reconstructed_office0.mp4"></video>
+        <figcaption>Replica office0 — high-fidelity baseline reconstruction (PSNR 38.7).</figcaption>
       </figure>
     </div>
 
@@ -289,6 +267,28 @@
       raw bags, and runs repeatedly died on the Google Drive FUSE mount until data was staged to
       local disk, requiring checkpoint resumes.
     </p>
+  </section>
+
+  <!-- ===================== LIMITATIONS ===================== -->
+  <section id="limitations">
+    <h2>Limitations</h2>
+    <ul>
+      <li><strong>No independent ground truth.</strong> The custom sequences have all-identity
+        poses in <code>transforms.json</code> and no VIO prior, and the LiDAR <code>/scan</code>
+        topic recorded zero messages (a subscription QoS timing issue). ATE for the handheld
+        sequences is therefore not reported, and even the robot ATE values lack an external
+        trajectory to validate against — they can only be read as a measure of drift, not as error
+        against ground-truth poses.</li>
+      <li><strong>Sensor depth range.</strong> The RealSense D455 returns reliable depth only
+        within ~0.5–3&nbsp;m; open lab scenes exceed this, producing noisy depth and poor Gaussian
+        initialization.</li>
+      <li><strong>Assumed depth↔color extrinsic.</strong> The bags carry no <code>/tf_static</code>,
+        so the converter assumes an identity depth-to-color transform (valid to ~15&nbsp;mm for
+        the D455, but still an approximation).</li>
+      <li><strong>Zero-prior tracking only.</strong> Camera poses are estimated purely from dense
+        RGB-D alignment with no odometry or motion prior, which is the main source of drift in
+        large, low-texture spaces.</li>
+    </ul>
   </section>
 
   <!-- ===================== FUTURE WORK ===================== -->

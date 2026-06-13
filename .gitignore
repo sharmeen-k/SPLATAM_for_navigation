@@ -5,3 +5,9 @@
 data/
 output/
 __pycache__/
+
+# Local working docs — not part of the published project
+VIDEO_SCRIPT.md
+handoff.txt
+*.pdf
+!splatam_paper.pdf
