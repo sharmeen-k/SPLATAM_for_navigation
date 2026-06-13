@@ -135,6 +135,19 @@ tbody tr:hover { background: var(--soft); }
   margin: 14px 0;
 }
 .gallery figure { margin: 0; }
+.gallery img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.gallery figcaption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.45;
+}
 
 /* ---------- Footer ---------- */
 footer {

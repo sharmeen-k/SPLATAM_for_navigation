@@ -137,17 +137,17 @@
       pipeline produces usable maps when motion is moderate and depth is dense.
     </p>
     <div class="gallery">
-      <figure class="placeholder-box">
-        <span>seq4 — rendered RGB vs. ground truth</span>
-        <figcaption>TODO: add comparison image</figcaption>
+      <figure>
+        <img src="assets/seq4_desk_robot.png" alt="seq4 ground-truth vs. rasterized RGB and depth panel" />
+        <figcaption>seq4 (desk, robot) — GT vs. rasterized RGB/depth (frame PSNR 24.9).</figcaption>
       </figure>
-      <figure class="placeholder-box">
-        <span>seq2 — Gaussian map / reconstruction</span>
-        <figcaption>TODO: add render</figcaption>
+      <figure>
+        <img src="assets/seq2_desk_handheld.png" alt="seq2 ground-truth vs. rasterized RGB and depth panel" />
+        <figcaption>seq2 (desk, handheld) — sharp reconstruction (frame PSNR 29.3).</figcaption>
       </figure>
-      <figure class="placeholder-box">
-        <span>Replica office0 — high-fidelity baseline</span>
-        <figcaption>TODO: add render</figcaption>
+      <figure>
+        <img src="assets/replica_office0.png" alt="Replica office0 ground-truth vs. rasterized RGB and depth panel" />
+        <figcaption>Replica office0 — high-fidelity baseline (frame PSNR 38.4, near-zero depth diff).</figcaption>
       </figure>
     </div>
 
@@ -160,13 +160,15 @@
       (PSNR 15.8) — <span class="placeholder">likely cause: TODO confirm (motion blur? texture-poor lab?)</span>.
     </p>
     <div class="gallery">
-      <figure class="placeholder-box">
-        <span>seq1 — trajectory drift visualization</span>
-        <figcaption>TODO: add image</figcaption>
+      <figure>
+        <img src="assets/seq1_room_handheld.png" alt="seq1 ground-truth vs. rasterized RGB and depth panel" />
+        <figcaption>seq1 (room, handheld) — per-frame render is reasonable (PSNR 23.7), but the
+          trajectory drifts badly (ATE ~210 cm).</figcaption>
       </figure>
-      <figure class="placeholder-box">
-        <span>seq3 — degraded / blurry reconstruction</span>
-        <figcaption>TODO: add image</figcaption>
+      <figure>
+        <img src="assets/seq3_lab_robot.png" alt="seq3 ground-truth vs. rasterized RGB and depth panel" />
+        <figcaption>seq3 (lab, robot) — degraded rasterized RGB (frame PSNR 11.6); weakest
+          reconstruction of the set.</figcaption>
       </figure>
     </div>
     <p class="muted">
