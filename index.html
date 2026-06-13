@@ -124,7 +124,7 @@
     <h3>Baseline sanity check — Replica</h3>
     <p>
       Before touching custom data we reproduced the Replica baseline. On <code>room0</code> our
-      numbers match the paper closely, confirming the harness is faithful.
+      numbers match the paper closely.
     </p>
     <div class="table-scroll">
       <table>
@@ -141,11 +141,14 @@
       Paper vs. ours on <code>room0</code>: PSNR 33.18 / 32.82 · SSIM 0.972 / 0.977 · LPIPS 0.074 / 0.072.
     </p>
 
-      <section id="limitations">
-    <h2>Limitations</h2>
+    <p>
+      However, while running SPLATAM on <code>office0</code>, processing slowed down significantly. 
+      <code>office0</code> ran about 1.5× slower per frame than room0 (~3.7 hrs vs ~5.5 hrs over 
+      2000 frames).
+    </p>
 
     <div class="callout">
-      <h3>Unbounded Gaussian growth (map bloat)</h3>
+      <h3>Why does this map bloat happen? - Unbounded Gaussian growth </h3>
       <p>
         SplaTAM's map <em>is</em> its collection of 3D Gaussians, and it adds a new Gaussian at
         every pixel the current map doesn't already explain — wherever the rendered silhouette
@@ -155,7 +158,7 @@
         never stops growing. Pruning doesn't keep pace with densification.
       </p>
       <p>
-        Our clearest evidence is the <strong>Replica office0</strong> baseline. Our diagnostics show
+        On the <strong>Replica office0</strong> baseline, our diagnostics show
         the map already holding <strong>≈4.96M Gaussians at frame&nbsp;800</strong> and still
         climbing at <strong>~1,000 Gaussians per frame</strong> to <strong>≈5.40M by
         frame&nbsp;1200</strong> — with the saved checkpoint growing from <strong>238&nbsp;MB to
@@ -169,10 +172,19 @@
         frame)</strong> — roughly <strong>8× slower</strong> than the ~1.2&nbsp;s/frame we measured
         on the small, bounded custom scenes.
       </p>
-      <p class="muted">
+      <p>
         This is a limitation the SplaTAM authors acknowledge, and it shows up directly in our own
         data: the open-lab sequences carry far heavier maps than the bounded-desk sequences, which
-        is part of why the lab scenes degrade and slow down.
+        is part of why the lab scenes degrade and slow down. The SplaTAM authors did try to battle 
+        this with a <strong>Gaussian culling mechanism</strong>. During mapping, SplaTAM prunes 
+        Gaussians whose opacity falls below ~0.005 or that grow too large (inherited from 3DGS). 
+        But it only removes degenerate Gaussians, i.e. near-transparent or oversized. It has nothing 
+        to remove redundant ones (many valid, opaque Gaussians piled on the same surface), and no 
+        global cap or merging. So on a dense scene, densification massively outpaces pruning. Our 
+        growth numbers are the proof: net +~1,000 Gaussians/frame with no plateau at frame 1200 — 
+        and that "net" already accounts for whatever pruning removed. So culling exists, it just 
+        targets the wrong thing to bound map size. The only culling is opacity/size-based, so nothing caps redundancy, and the map grows with 
+        depth coverage without bound.
       </p>
     </div>
 
@@ -181,20 +193,14 @@
         poses in <code>transforms.json</code> and no VIO prior, and the LiDAR <code>/scan</code>
         topic recorded zero messages (a subscription QoS timing issue). ATE for the handheld
         sequences is therefore not reported, and even the robot ATE values lack an external
-        trajectory to validate against.</li>
+        trajectory to validate against. Therefore, these values can only be interpreted as a measure 
+        of drift rather than comparison with Ground Truth poses.</li>
       <li><strong>Sensor depth range.</strong> The RealSense D455 returns reliable depth only
         within ~0.5–3&nbsp;m; open lab scenes exceed this, producing noisy depth and poor Gaussian
         initialization.</li>
       <li><strong>Assumed depth↔color extrinsic.</strong> The bags carry no <code>/tf_static</code>,
         so the converter assumes an identity depth-to-color transform (valid to ~15&nbsp;mm for
         the D455, but still an approximation).</li>
-      <li><strong>Capture instability.</strong> Recording at 1280×720&nbsp;@&nbsp;30&nbsp;fps
-        overloaded the robot's Raspberry Pi and dropped frames; downsampling to
-        640×480&nbsp;@&nbsp;15&nbsp;fps fixed it, but some frames are still dropped across all
-        sequences.</li>
-      <li><strong>Runtime fragility.</strong> Streaming the dataset off the Google Drive FUSE mount
-        crashed runs (I/O rate-limiting); data had to be staged to the Colab runtime's local disk,
-        and long runs depended on checkpoint resumes to survive disconnects.</li>
       <li><strong>Zero-prior tracking only.</strong> Camera poses are estimated purely from dense
         RGB-D alignment with no odometry or motion prior, which is the main source of drift in
         large, low-texture spaces.</li>
@@ -231,7 +237,7 @@
     <div class="gallery">
       <figure>
         <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq4_robot_desk.mp4"></video>
-        <figcaption>seq4 (robot, desk) — reconstructed render (PSNR 23.5, lowest ATE 26.5 cm).</figcaption>
+        <figcaption>seq4 (robot, desk) — reconstructed render (PSNR 23.5)</figcaption>
       </figure>
       <figure>
         <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq2_handheld_desk.mp4"></video>
