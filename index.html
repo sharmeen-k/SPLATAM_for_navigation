@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SplaTAM for Navigation — EE243 Project</title>
 <meta name="description" content="Testing SplaTAM (Gaussian Splatting RGB-D SLAM) on custom RealSense footage for indoor robot navigation. EE243 Computer Vision project." />
-<link rel="stylesheet" href="style.css?v=4" />
+<link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
 
@@ -181,12 +181,12 @@
     </p>
     <div class="gallery">
       <figure>
-        <img src="assets/seq4_desk_robot.png" alt="seq4 ground-truth vs. rasterized RGB and depth panel" />
-        <figcaption>seq4 (desk, robot) — GT vs. rasterized RGB/depth (frame PSNR 24.9).</figcaption>
+        <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq4_robot_desk.mp4"></video>
+        <figcaption>seq4 (robot, desk) — reconstructed render (PSNR 23.5, lowest ATE 26.5 cm).</figcaption>
       </figure>
       <figure>
-        <img src="assets/seq2_desk_handheld.png" alt="seq2 ground-truth vs. rasterized RGB and depth panel" />
-        <figcaption>seq2 (desk, handheld) — sharp reconstruction (frame PSNR 29.3).</figcaption>
+        <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq2_handheld_desk.mp4"></video>
+        <figcaption>seq2 (handheld, desk) — sharpest reconstruction of the set (PSNR 26.2).</figcaption>
       </figure>
       <figure>
         <img src="assets/replica_office0.png" alt="Replica office0 ground-truth vs. rasterized RGB and depth panel" />
@@ -207,14 +207,14 @@
     </p>
     <div class="gallery">
       <figure>
-        <img src="assets/seq1_room_handheld.png" alt="seq1 ground-truth vs. rasterized RGB and depth panel" />
-        <figcaption>seq1 (handheld, lab) — open-range depth noise; per-frame render is only
-          moderate (PSNR 20.4 overall) and no GT trajectory is available.</figcaption>
+        <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq1_handheld_lab.mp4"></video>
+        <figcaption>seq1 (handheld, lab) — open-range depth noise; only a moderate render
+          (PSNR 20.4) and no GT trajectory available.</figcaption>
       </figure>
       <figure>
-        <img src="assets/seq3_lab_robot.png" alt="seq3 ground-truth vs. rasterized RGB and depth panel" />
-        <figcaption>seq3 (lab, robot) — degraded rasterized RGB (frame PSNR 11.6); weakest
-          reconstruction of the set.</figcaption>
+        <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq3_robot_lab.mp4"></video>
+        <figcaption>seq3 (robot, lab) — weakest reconstruction of the set (PSNR 15.8); open lab
+          ranges exceed the D455's reliable depth window.</figcaption>
       </figure>
     </div>
     <h3>Key findings</h3>
@@ -281,15 +281,6 @@
         platform × topology grid, and run them in parallel on higher-VRAM hardware (e.g. A100).</li>
       <li><strong>Close the navigation loop.</strong> Feed the reconstructed Gaussian map into a
         downstream planning / navigation stack — the original motivation for the project.</li>
-    </ul>
-  </section>
-
-  <!-- ===================== TEAM ===================== -->
-  <section id="team">
-    <h2>Team &amp; Contributions</h2>
-    <ul>
-      <li>Sharmeen Kazi — <span class="placeholder">TODO: contributions</span></li>
-      <li>Aryan Sharma — <span class="placeholder">TODO: contributions</span></li>
     </ul>
   </section>
 
