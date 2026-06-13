@@ -5,9 +5,10 @@
   --bg: #ffffff;
   --fg: #1c1e21;
   --muted: #6b7280;
-  --accent: #2563eb;
+  --accent: #6f5cb8;
   --border: #e5e7eb;
   --soft: #f7f8fa;
+  --band: #f7f5fc;
   --good: #15803d;
   --good-bg: #f0fdf4;
   --bad: #b91c1c;
@@ -24,6 +25,7 @@ body {
   margin: 0;
   color: var(--fg);
   background: var(--bg);
+  overflow-x: hidden;
   font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -44,7 +46,7 @@ code {
 
 /* ---------- Hero ---------- */
 .hero {
-  background: linear-gradient(180deg, #f3f6fb 0%, #ffffff 100%);
+  background: linear-gradient(180deg, #f4f1fb 0%, #ffffff 100%);
   border-bottom: 1px solid var(--border);
   padding: 56px 0 40px;
   text-align: center;
@@ -59,11 +61,18 @@ code {
 }
 .hero h1 { font-size: 2.5rem; margin: 0 0 12px; letter-spacing: -0.02em; }
 .tagline { font-size: 1.12rem; color: #374151; max-width: 640px; margin: 0 auto 14px; }
-.authors { color: var(--muted); margin: 0 0 22px; }
+.authors { color: var(--fg); margin: 0 0 4px; font-size: 1.02rem; }
+.authors a { color: var(--fg); font-weight: 500; }
+.authors a:hover { color: var(--accent); }
+.authors sup { font-size: 0.62em; color: var(--muted); font-weight: 400; }
+.affil { color: var(--muted); font-size: 0.86rem; margin: 0 0 22px; }
+.affil sup { font-size: 0.72em; margin-right: 1px; }
 
 .links { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   padding: 8px 16px;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -72,12 +81,27 @@ code {
   font-weight: 500;
   font-size: 0.92rem;
 }
+.btn svg { flex: none; opacity: 0.75; }
 .btn:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.btn:hover svg { opacity: 1; }
 
 /* ---------- Sections ---------- */
-main { padding: 8px 0 40px; }
-section { padding: 36px 0; border-bottom: 1px solid var(--border); }
-section:last-child { border-bottom: none; }
+main { padding: 0 0 8px; }
+section { position: relative; padding: 42px 0; }
+/* Full-bleed alternating background bands behind the constrained content. */
+section:nth-of-type(even)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  background: var(--band);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  z-index: -1;
+}
 h2 { font-size: 1.6rem; margin: 0 0 14px; letter-spacing: -0.01em; }
 h3 { font-size: 1.18rem; margin: 28px 0 10px; }
 .good-h { color: var(--good); }
@@ -85,7 +109,7 @@ h3 { font-size: 1.18rem; margin: 28px 0 10px; }
 .muted { color: var(--muted); font-size: 0.92rem; }
 
 .callout {
-  background: var(--soft);
+  background: #fff;
   border: 1px solid var(--border);
   border-left: 4px solid var(--accent);
   border-radius: 10px;

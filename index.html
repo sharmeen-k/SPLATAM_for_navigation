@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SplaTAM for Navigation — EE243 Project</title>
+<title>SplaTAM for Navigation: EE243 Project</title>
 <meta name="description" content="Testing SplaTAM (Gaussian Splatting RGB-D SLAM) on custom RealSense footage for indoor robot navigation. EE243 Computer Vision project." />
-<link rel="stylesheet" href="style.css?v=6" />
+<link rel="stylesheet" href="style.css?v=8" />
 </head>
 <body>
 
@@ -14,18 +14,33 @@
     <p class="eyebrow">EE243 · Computer Vision · Course Project</p>
     <h1>SplaTAM for Navigation</h1>
     <p class="tagline">
-      Testing <a href="https://github.com/spla-tam/SplaTAM">SplaTAM</a> — Gaussian-Splatting dense
-      RGB-D SLAM — on custom Intel RealSense footage captured for indoor robot navigation.
+      Testing <a href="https://github.com/spla-tam/SplaTAM">SplaTAM</a> (Gaussian-Splatting dense
+      RGB-D SLAM) on custom Intel RealSense footage captured for indoor robot navigation.
     </p>
 
-    <p class="authors">Sharmeen Kazi · Aryan Sharma</p>
+    <p class="authors">
+      <a href="https://github.com/sharmeen-k" target="_blank" rel="noopener">Sharmeen Kazi</a><sup>1</sup>
+      &middot;
+      <a href="https://github.com/sharma-aryan-1" target="_blank" rel="noopener">Aryan Sharma</a><sup>1</sup>
+    </p>
+    <p class="affil"><sup>1</sup>University of California, Riverside</p>
 
     <nav class="links">
-      <a class="btn" href="https://github.com/sharmeen-k/SPLATAM_for_navigation">GitHub Repo</a>
-      <a class="btn" href="splatam_paper.pdf">SplaTAM Paper (PDF)</a>
-      <a class="btn" href="#demo">Demo Video</a>
-      <a class="btn" href="#results">Results</a>
-      <a class="btn" href="#limitations">Limitations</a>
+      <a class="btn" href="https://github.com/sharmeen-k/SPLATAM_for_navigation">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub Repo</a>
+      <a class="btn" href="splatam_paper.pdf">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 1.5h5L13 6v8.5h-9.5z"/><path d="M8.5 1.5V6H13"/></svg>
+        SplaTAM Paper (PDF)</a>
+      <a class="btn" href="#demo">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M5 3.2v9.6l7.5-4.8z"/></svg>
+        Demo Video</a>
+      <a class="btn" href="#results">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><rect x="1.5" y="9" width="3" height="5" rx="0.5"/><rect x="6.5" y="5" width="3" height="9" rx="0.5"/><rect x="11.5" y="2" width="3" height="12" rx="0.5"/></svg>
+        Results</a>
+      <a class="btn" href="#limitations">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M8 2 1.5 13.5h13z"/><path d="M8 6.5v3.3"/><circle cx="8" cy="11.6" r="0.6" fill="currentColor" stroke="none"/></svg>
+        Limitations</a>
     </nav>
   </div>
 </header>
@@ -52,9 +67,9 @@
         poses) on four custom sequences.</li>
     </ol>
     <p>
-      The custom data forms a <strong>2&times;2 matrix</strong> — two camera platforms
+      The custom data forms a <strong>2&times;2 matrix</strong>: two camera platforms
       (<em>handheld</em> vs. <em>robot-mounted</em> on a TurtleBot3 Burger) crossed with two scene
-      topologies (a <em>large open lab</em> vs. a <em>cluttered bounded desk</em>) — captured on an
+      topologies (a <em>large open lab</em> vs. a <em>cluttered bounded desk</em>), all captured on an
       Intel RealSense D455. This lets us ask which matters more for Gaussian-Splatting SLAM:
       how the camera moves, or what the scene looks like.
     </p>
@@ -64,7 +79,7 @@
   <section id="demo">
     <h2>Demo Video</h2>
     <p>
-      A walkthrough of the project — the capture setup, the data pipeline, and SplaTAM
+      A walkthrough of the project: the capture setup, the data pipeline, and SplaTAM
       reconstructions across our custom sequences.
     </p>
     <div class="video-frame">
@@ -88,7 +103,7 @@
       <li>Rescale depth to SplaTAM's fixed scale (<code>uint16 / 6553.5 = meters</code>).</li>
       <li>Time-sync RGB &amp; depth within a 30&nbsp;ms window.</li>
       <li>Write <code>rgb/</code>, <code>depth/</code>, and <code>transforms.json</code> (identity
-        poses — SplaTAM estimates them).</li>
+        poses, which SplaTAM estimates).</li>
     </ol>
     <pre class="diagram-ascii" aria-label="Project workflow diagram">
  ┌──────────────────────────┐
@@ -143,7 +158,7 @@
           <tr><th>Scene</th><th>PSNR ↑</th><th>MS-SSIM ↑</th><th>LPIPS ↓</th><th>Depth RMSE ↓</th><th>ATE RMSE ↓</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>room0</code></td><td>32.82</td><td>0.977</td><td>0.072</td><td>0.49 cm</td><td>—</td></tr>
+          <tr><td><code>room0</code></td><td>32.82</td><td>0.977</td><td>0.072</td><td>0.49 cm</td><td>N/A</td></tr>
           <tr><td><code>office0</code></td><td>38.71</td><td>0.984</td><td>0.082</td><td>0.37 cm</td><td>0.46 cm</td></tr>
         </tbody>
       </table>
@@ -155,7 +170,7 @@
     <div class="gallery">
       <figure>
         <video controls muted playsinline preload="metadata" src="assets/reconstructed_office0.mp4"></video>
-        <figcaption>Replica office0 — high-fidelity baseline reconstruction (PSNR 38.7).</figcaption>
+        <figcaption>Replica office0: high-fidelity baseline reconstruction (PSNR 38.7).</figcaption>
       </figure>
     </div>
 
@@ -169,7 +184,7 @@
       <h3>Why does this map bloat happen? - Unbounded Gaussian growth </h3>
       <p>
         SplaTAM's map <em>is</em> its collection of 3D Gaussians, and it adds a new Gaussian at
-        every pixel the current map doesn't already explain — wherever the rendered silhouette
+        every pixel the current map doesn't already explain: wherever the rendered silhouette
         falls below 0.5, or the depth error is large. In a small bounded scene this saturates after
         the first few frames; in a large scene the camera keeps revealing new geometry (much of it
         beyond the D455's reliable depth range, so it is seeded at noisy positions), and the map
@@ -179,7 +194,7 @@
         On the <strong>Replica office0</strong> baseline, our diagnostics show
         the map already holding <strong>≈4.96M Gaussians at frame&nbsp;800</strong> and still
         climbing at <strong>~1,000 Gaussians per frame</strong> to <strong>≈5.40M by
-        frame&nbsp;1200</strong> — with the saved checkpoint growing from <strong>238&nbsp;MB to
+        frame&nbsp;1200</strong>, with the saved checkpoint growing from <strong>238&nbsp;MB to
         259&nbsp;MB</strong> over the same span, and still rising through the end of the
         2000-frame run.
       </p>
@@ -187,7 +202,7 @@
         Because every frame must rasterize and optimize the <em>entire</em> map, per-frame compute
         climbs as the map grows. Over the final stretch of the office0 run (frames 1200–1999) the
         cost averaged <strong>3.74&nbsp;s/frame tracking + 6.12&nbsp;s/frame mapping (≈10&nbsp;s per
-        frame)</strong> — roughly <strong>8× slower</strong> than the ~1.2&nbsp;s/frame we measured
+        frame)</strong>, roughly <strong>8× slower</strong> than the ~1.2&nbsp;s/frame we measured
         on the small, bounded custom scenes.
       </p>
       <p>
@@ -199,14 +214,14 @@
         But it only removes degenerate Gaussians, i.e. near-transparent or oversized. It has nothing 
         to remove redundant ones (many valid, opaque Gaussians piled on the same surface), and no 
         global cap or merging. So on a dense scene, densification massively outpaces pruning. Our 
-        growth numbers are the proof: net +~1,000 Gaussians/frame with no plateau at frame 1200 — 
+        growth numbers are the proof: net +~1,000 Gaussians/frame with no plateau at frame 1200,
         and that "net" already accounts for whatever pruning removed. So culling exists, it just 
         targets the wrong thing to bound map size. The only culling is opacity/size-based, so nothing caps redundancy, and the map grows with 
         depth coverage without bound.
       </p>
     </div>
 
-    <h3>Custom sequences — full SLAM (zero-prior tracking)</h3>
+    <h3>Custom sequences: full SLAM (zero-prior tracking)</h3>
     <p class="muted">
       The 2&times;2 matrix: platform (handheld / robot) &times; topology (open lab / bounded desk).
       Depth&nbsp;L1 is reported (matches the depth RMSE in the logs).
@@ -217,8 +232,8 @@
           <tr><th>Sequence</th><th>Platform / scene</th><th>Frames</th><th>PSNR ↑</th><th>MS-SSIM ↑</th><th>LPIPS ↓</th><th>Depth L1 ↓</th><th>ATE RMSE ↓</th></tr>
         </thead>
         <tbody>
-          <tr><td>seq1</td><td>Handheld · lab</td><td>873</td><td>20.43</td><td>0.812</td><td>0.220</td><td>15.48 cm</td><td class="muted">N/A — no GT</td></tr>
-          <tr><td>seq2</td><td>Handheld · desk</td><td>876</td><td class="good">26.18</td><td class="good">0.906</td><td class="good">0.109</td><td class="good">4.80 cm</td><td class="muted">N/A — no GT</td></tr>
+          <tr><td>seq1</td><td>Handheld · lab</td><td>873</td><td>20.43</td><td>0.812</td><td>0.220</td><td>15.48 cm</td><td class="muted">N/A (no GT)</td></tr>
+          <tr><td>seq2</td><td>Handheld · desk</td><td>876</td><td class="good">26.18</td><td class="good">0.906</td><td class="good">0.109</td><td class="good">4.80 cm</td><td class="muted">N/A (no GT)</td></tr>
           <tr><td>seq3</td><td>Robot · lab</td><td>955</td><td class="bad">15.80</td><td class="bad">0.731</td><td class="bad">0.295</td><td>5.07 cm</td><td>85.52 cm</td></tr>
           <tr><td>seq4</td><td>Robot · desk</td><td>964</td><td>23.52</td><td>0.897</td><td>0.135</td><td>10.50 cm</td><td class="good">26.50 cm</td></tr>
         </tbody>
@@ -236,11 +251,11 @@
     <div class="gallery">
       <figure>
         <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq4_robot_desk.mp4"></video>
-        <figcaption>seq4 (robot, desk) — reconstructed render (PSNR 23.5)</figcaption>
+        <figcaption>seq4 (robot, desk): reconstructed render (PSNR 23.5)</figcaption>
       </figure>
       <figure>
         <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq2_handheld_desk.mp4"></video>
-        <figcaption>seq2 (handheld, desk) — sharpest reconstruction of the set (PSNR 26.2).</figcaption>
+        <figcaption>seq2 (handheld, desk): sharpest reconstruction of the set (PSNR 26.2).</figcaption>
       </figure>
     </div>
 
@@ -258,29 +273,29 @@
     <div class="gallery">
       <figure>
         <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq1_handheld_lab.mp4"></video>
-        <figcaption>seq1 (handheld, lab) — open-range depth noise; only a moderate render
+        <figcaption>seq1 (handheld, lab): open-range depth noise; only a moderate render
           (PSNR 20.4) and no GT trajectory available.</figcaption>
       </figure>
       <figure>
         <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq3_robot_lab.mp4"></video>
-        <figcaption>seq3 (robot, lab) — weakest reconstruction of the set (PSNR 15.8); open lab
+        <figcaption>seq3 (robot, lab): weakest reconstruction of the set (PSNR 15.8); open lab
           ranges exceed the D455's reliable depth window.</figcaption>
       </figure>
     </div>
     <h3>Key findings</h3>
     <ul>
       <li><strong>Topology beats platform.</strong> Scene structure drives fidelity far more than
-        how the camera is held — desk scenes beat lab scenes on nearly every metric regardless of
+        how the camera is held: desk scenes beat lab scenes on nearly every metric regardless of
         platform, because the D455 only returns clean depth within ~0.5–3&nbsp;m.</li>
       <li><strong>A rigid mount still helps.</strong> Robot mounting noticeably reduces
         translational drift in hard scenes; the planar wheeled motion smooths out the sudden
         rotational spikes that plague handheld capture.</li>
       <li><strong>Proximity anomaly on robot desk.</strong> seq4's depth&nbsp;L1 (10.5&nbsp;cm) and
-        ~56% depth validity were worse than expected — consistent with the platform sitting inside
+        ~56% depth validity were worse than expected, consistent with the platform sitting inside
         the camera's minimum-clipping distance or facing reflective table-top surfaces.</li>
     </ul>
     <p class="muted">
-      The pipeline also surfaced practical issues — depth maps average only ~59% valid pixels on
+      The pipeline also surfaced practical issues: depth maps average only ~59% valid pixels on
       raw bags, and runs repeatedly died on the Google Drive FUSE mount until data was staged to
       local disk, requiring checkpoint resumes.
     </p>
@@ -294,7 +309,7 @@
         poses in <code>transforms.json</code> and no VIO prior, and the LiDAR <code>/scan</code>
         topic recorded zero messages (a subscription QoS timing issue). ATE for the handheld
         sequences is therefore not reported, and even the robot ATE values lack an external
-        trajectory to validate against — they can only be read as a measure of drift, not as error
+        trajectory to validate against; they can only be read as a measure of drift, not as error
         against ground-truth poses.</li>
       <li><strong>Sensor depth range.</strong> The RealSense D455 returns reliable depth only
         within ~0.5–3&nbsp;m; open lab scenes exceed this, producing noisy depth and poor Gaussian
@@ -324,7 +339,7 @@
       <li><strong>Broaden the matrix.</strong> Capture more and longer sequences across the
         platform × topology grid, and run them in parallel on higher-VRAM hardware (e.g. A100).</li>
       <li><strong>Close the navigation loop.</strong> Feed the reconstructed Gaussian map into a
-        downstream planning / navigation stack — the original motivation for the project.</li>
+        downstream planning / navigation stack, the original motivation for the project.</li>
     </ul>
   </section>
 
@@ -332,7 +347,7 @@
   <section id="references">
     <h2>References</h2>
     <ul>
-      <li>N. Keetha et al., <em>SplaTAM: Splat, Track &amp; Map 3D Gaussians for Dense RGB-D SLAM</em>, CVPR 2024 —
+      <li>N. Keetha et al., <em>SplaTAM: Splat, Track &amp; Map 3D Gaussians for Dense RGB-D SLAM</em>, CVPR 2024:
         <a href="https://github.com/spla-tam/SplaTAM">code</a>, <a href="splatam_paper.pdf">PDF</a>.</li>
       <li>Gaussian rasterizer:
         <a href="https://github.com/JonathonLuiten/diff-gaussian-rasterization-w-depth">diff-gaussian-rasterization-w-depth</a>.</li>
