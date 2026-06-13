@@ -1,0 +1,10 @@
+{
+  "scene": "replica/room0",
+  "paper_psnr": 33.18,
+  "our_psnr": 32.82,
+  "paper_ssim": 0.972,
+  "our_ssim": 0.977,
+  "paper_lpips": 0.074,
+  "our_lpips": 0.072,
+  "notes": "Baseline reproduction on Replica room0"
+}
