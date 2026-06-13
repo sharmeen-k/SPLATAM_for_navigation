@@ -29,6 +29,8 @@ body {
 
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
 
+img { max-width: 100%; height: auto; display: block; }
+
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
@@ -127,11 +129,26 @@ tbody tr:hover { background: var(--soft); }
 }
 .diagram { min-height: 120px; margin-top: 16px; }
 
+/* ---------- ASCII workflow diagram ---------- */
+.diagram-ascii {
+  background: var(--soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 16px 0;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #334155;
+  white-space: pre;
+}
+
 /* ---------- Gallery ---------- */
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
   margin: 14px 0;
 }
 .gallery figure { margin: 0; }

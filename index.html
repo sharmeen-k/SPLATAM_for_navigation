@@ -18,8 +18,7 @@
       RGB-D SLAM — on custom Intel RealSense footage captured for indoor robot navigation.
     </p>
 
-    <!-- TODO: replace with the real team member names -->
-    <p class="authors">Team: <span class="placeholder">Sharmeen Kazi, Aryan Sharma</span></p>
+    <p class="authors">Sharmeen Kazi · Aryan Sharma</p>
 
     <nav class="links">
       <a class="btn" href="https://github.com/sharmeen-k/SPLATAM_for_navigation">GitHub Repo</a>
@@ -49,8 +48,15 @@
       <li><strong>A data pipeline</strong> that converts Intel RealSense ROS&nbsp;2
         <code>.mcap</code> recordings into the NeRFCapture layout SplaTAM expects.</li>
       <li><strong>Evaluation</strong> of full RGB-D SLAM (tracking + mapping, no ground-truth
-        poses) on four custom sequences — both handheld and robot-mounted.</li>
+        poses) on four custom sequences.</li>
     </ol>
+    <p>
+      The custom data forms a <strong>2&times;2 matrix</strong> — two camera platforms
+      (<em>handheld</em> vs. <em>robot-mounted</em> on a TurtleBot3 Burger) crossed with two scene
+      topologies (a <em>large open lab</em> vs. a <em>cluttered bounded desk</em>) — captured on an
+      Intel RealSense D455. This lets us ask which matters more for Gaussian-Splatting SLAM:
+      how the camera moves, or what the scene looks like.
+    </p>
   </section>
 
   <!-- ===================== DEMO VIDEO ===================== -->
@@ -71,9 +77,9 @@
   <section id="pipeline">
     <h2>Pipeline</h2>
     <p>
-      Footage is recorded on an Intel RealSense D4xx (640×480 color + depth) as ROS&nbsp;2
-      <code>.mcap</code> bags. Our converter (<code>mcap2dataset.py</code>) turns a bag into a
-      SplaTAM-ready dataset:
+      Footage is recorded on an Intel RealSense D455 (640×480 color + depth, 15&nbsp;fps) as
+      ROS&nbsp;2 <code>.mcap</code> bags. Our converter (<code>mcap2dataset.py</code>) turns a bag
+      into a SplaTAM-ready dataset:
     </p>
     <ol class="steps">
       <li>Read color + depth intrinsics from the <code>CameraInfo</code> topics.</li>
@@ -84,10 +90,42 @@
       <li>Write <code>rgb/</code>, <code>depth/</code>, and <code>transforms.json</code> (identity
         poses — SplaTAM estimates them).</li>
     </ol>
-    <div class="placeholder-box diagram">
-      <!-- TODO: optional pipeline diagram / flowchart -->
-      <span>Pipeline diagram (optional) — TODO</span>
-    </div>
+    <pre class="diagram-ascii" aria-label="Project workflow diagram">
+ ┌──────────────────────────┐
+ │  Intel RealSense D455     │   handheld  OR  TurtleBot3-mounted
+ │  RGB-D @ 640x480, 15 fps  │
+ └─────────────┬────────────┘
+               │  record in ROS 2
+               ▼
+ ┌──────────────────────────┐
+ │      .mcap  bag file       │   (RGB + depth + CameraInfo topics)
+ └─────────────┬────────────┘
+               │  mcap2dataset.py
+               ▼
+ ┌─────────────────────────────────────────────────────────────┐
+ │  undistort RGB  →  reproject depth into color frame           │
+ │  rescale depth (÷ 6553.5)  →  time-sync RGB/depth (30 ms)     │
+ └─────────────┬───────────────────────────────────────────────┘
+               ▼
+ ┌──────────────────────────┐
+ │  NeRFCapture dataset       │   rgb/   depth/   transforms.json
+ │  (identity poses)          │   →  stage to local disk*
+ └─────────────┬────────────┘
+               │  zero-prior RGB-D SLAM
+               ▼
+ ┌──────────────────────────┐
+ │  SplaTAM                   │   joint camera tracking + 3D
+ │  track + map               │   Gaussian mapping  →  params.npz
+ └─────────────┬────────────┘
+               ▼
+ ┌──────────────────────────┐
+ │  Evaluation                │   PSNR · MS-SSIM · LPIPS ·
+ │                            │   Depth-L1 · ATE
+ └──────────────────────────┘
+
+ * staging to the runtime's local disk avoids the Google Drive FUSE
+   I/O bottleneck that otherwise crashes long runs mid-sequence.
+</pre>
   </section>
 
   <!-- ===================== RESULTS ===================== -->
@@ -114,17 +152,21 @@
       Paper vs. ours on <code>room0</code>: PSNR 33.18 / 32.82 · SSIM 0.972 / 0.977 · LPIPS 0.074 / 0.072.
     </p>
 
-    <h3>Custom sequences — full SLAM (estimated poses)</h3>
+    <h3>Custom sequences — full SLAM (zero-prior tracking)</h3>
+    <p class="muted">
+      The 2&times;2 matrix: platform (handheld / robot) &times; topology (open lab / bounded desk).
+      Depth&nbsp;L1 is reported (matches the depth RMSE in the logs).
+    </p>
     <div class="table-scroll">
       <table>
         <thead>
-          <tr><th>Sequence</th><th>Capture</th><th>Frames</th><th>PSNR ↑</th><th>MS-SSIM ↑</th><th>LPIPS ↓</th><th>Depth RMSE ↓</th><th>ATE RMSE ↓</th></tr>
+          <tr><th>Sequence</th><th>Platform / scene</th><th>Frames</th><th>PSNR ↑</th><th>MS-SSIM ↑</th><th>LPIPS ↓</th><th>Depth L1 ↓</th><th>ATE RMSE ↓</th></tr>
         </thead>
         <tbody>
-          <tr><td>seq1</td><td>Room, handheld</td><td>873</td><td>20.43</td><td>0.812</td><td>0.220</td><td>15.48 cm</td><td class="bad">209.74 cm</td></tr>
-          <tr><td>seq2</td><td>Desk, handheld</td><td>876</td><td>26.18</td><td>0.906</td><td>0.109</td><td>4.80 cm</td><td class="bad">121.26 cm</td></tr>
-          <tr><td>seq3</td><td>Lab, robot</td><td>963</td><td>15.80</td><td>0.731</td><td>0.295</td><td>5.07 cm</td><td>85.52 cm</td></tr>
-          <tr><td>seq4</td><td>Desk, robot</td><td>958</td><td>23.52</td><td>0.897</td><td>0.135</td><td>10.50 cm</td><td class="good">26.50 cm</td></tr>
+          <tr><td>seq1</td><td>Handheld · lab</td><td>873</td><td>20.43</td><td>0.812</td><td>0.220</td><td>15.48 cm</td><td class="muted">N/A — no GT</td></tr>
+          <tr><td>seq2</td><td>Handheld · desk</td><td>876</td><td class="good">26.18</td><td class="good">0.906</td><td class="good">0.109</td><td class="good">4.80 cm</td><td class="muted">N/A — no GT</td></tr>
+          <tr><td>seq3</td><td>Robot · lab</td><td>955</td><td class="bad">15.80</td><td class="bad">0.731</td><td class="bad">0.295</td><td>5.07 cm</td><td>85.52 cm</td></tr>
+          <tr><td>seq4</td><td>Robot · desk</td><td>964</td><td>23.52</td><td>0.897</td><td>0.135</td><td>10.50 cm</td><td class="good">26.50 cm</td></tr>
         </tbody>
       </table>
     </div>
@@ -132,9 +174,10 @@
     <!-- ---------- SUCCESSFUL OUTCOMES ---------- -->
     <h3 class="good-h">✓ Successful outcomes</h3>
     <p>
-      On the desk and robot-mounted sequences, rendering quality is strong (seq2: PSNR 26.2,
-      SSIM 0.91) and seq4 achieves the lowest trajectory error (ATE 26.5 cm). These confirm the
-      pipeline produces usable maps when motion is moderate and depth is dense.
+      The bounded <strong>desk</strong> scenes are where SplaTAM shines: seq2 (handheld desk)
+      reaches PSNR&nbsp;26.2 / SSIM&nbsp;0.91, and seq4 (robot desk) gives the lowest trajectory
+      error of the custom set (ATE&nbsp;26.5&nbsp;cm). Within the RealSense D455's reliable
+      0.5–3&nbsp;m depth window, Gaussian seeding is clean and both tracking and mapping hold up.
     </p>
     <div class="gallery">
       <figure>
@@ -154,16 +197,19 @@
     <!-- ---------- FAILURE CASES ---------- -->
     <h3 class="bad-h">✗ Failure cases</h3>
     <p>
-      The handheld sequences (seq1, seq2) show large trajectory drift (ATE up to ~210 cm) despite
-      decent per-frame rendering. Fast hand motion plus sparse/noisy RealSense depth makes camera
-      tracking unreliable without ground-truth poses. seq3 also has the weakest rendering
-      (PSNR 15.8) — <span class="placeholder">likely cause: TODO confirm (motion blur? texture-poor lab?)</span>.
+      The open <strong>lab</strong> scenes are where it breaks down. seq3 (robot lab) has the
+      weakest reconstruction of the set (PSNR&nbsp;15.8, LPIPS&nbsp;0.30) and seq1 (handheld lab)
+      isn't far behind. The lab's open ranges exceed the D455's reliable depth window, so depth
+      returns get noisy, Gaussian initialization is poor, and trajectory drift follows. The
+      handheld sequences carry <em>no ground-truth trajectory</em> (all-identity poses, and the
+      LiDAR <code>/scan</code> topic recorded zero messages), so their ATE is not reported rather
+      than trusted.
     </p>
     <div class="gallery">
       <figure>
         <img src="assets/seq1_room_handheld.png" alt="seq1 ground-truth vs. rasterized RGB and depth panel" />
-        <figcaption>seq1 (room, handheld) — per-frame render is reasonable (PSNR 23.7), but the
-          trajectory drifts badly (ATE ~210 cm).</figcaption>
+        <figcaption>seq1 (handheld, lab) — open-range depth noise; per-frame render is only
+          moderate (PSNR 20.4 overall) and no GT trajectory is available.</figcaption>
       </figure>
       <figure>
         <img src="assets/seq3_lab_robot.png" alt="seq3 ground-truth vs. rasterized RGB and depth panel" />
@@ -171,40 +217,80 @@
           reconstruction of the set.</figcaption>
       </figure>
     </div>
+    <h3>Key findings</h3>
+    <ul>
+      <li><strong>Topology beats platform.</strong> Scene structure drives fidelity far more than
+        how the camera is held — desk scenes beat lab scenes on nearly every metric regardless of
+        platform, because the D455 only returns clean depth within ~0.5–3&nbsp;m.</li>
+      <li><strong>A rigid mount still helps.</strong> Robot mounting noticeably reduces
+        translational drift in hard scenes; the planar wheeled motion smooths out the sudden
+        rotational spikes that plague handheld capture.</li>
+      <li><strong>Proximity anomaly on robot desk.</strong> seq4's depth&nbsp;L1 (10.5&nbsp;cm) and
+        ~56% depth validity were worse than expected — consistent with the platform sitting inside
+        the camera's minimum-clipping distance or facing reflective table-top surfaces.</li>
+    </ul>
     <p class="muted">
-      Note: the pipeline also revealed practical issues — depth maps average only ~59% valid pixels
-      on raw bags, and the Colab runtime repeatedly died mid-run, requiring checkpoint resumes.
+      The pipeline also surfaced practical issues — depth maps average only ~59% valid pixels on
+      raw bags, and runs repeatedly died on the Google Drive FUSE mount until data was staged to
+      local disk, requiring checkpoint resumes.
     </p>
   </section>
 
   <!-- ===================== LIMITATIONS ===================== -->
   <section id="limitations">
     <h2>Limitations</h2>
-    <ul class="placeholder-list">
-      <li>No ground-truth trajectory for the custom sequences, so ATE is measured against
-        SplaTAM's own pose estimates — <span class="placeholder">TODO: clarify how ATE was computed for real data</span>.</li>
-      <li>Depth–color extrinsic assumed identity (no <code>/tf_static</code> in the bags).</li>
-      <li><span class="placeholder">TODO: hardware/runtime constraints (Tesla T4, Colab time limits, memory).</span></li>
-      <li><span class="placeholder">TODO: any other limitations the team observed.</span></li>
+    <ul>
+      <li><strong>No independent ground truth.</strong> The custom sequences have all-identity
+        poses in <code>transforms.json</code> and no VIO prior, and the LiDAR <code>/scan</code>
+        topic recorded zero messages (a subscription QoS timing issue). ATE for the handheld
+        sequences is therefore not reported, and even the robot ATE values lack an external
+        trajectory to validate against.</li>
+      <li><strong>Sensor depth range.</strong> The RealSense D455 returns reliable depth only
+        within ~0.5–3&nbsp;m; open lab scenes exceed this, producing noisy depth and poor Gaussian
+        initialization.</li>
+      <li><strong>Assumed depth↔color extrinsic.</strong> The bags carry no <code>/tf_static</code>,
+        so the converter assumes an identity depth-to-color transform (valid to ~15&nbsp;mm for
+        the D455, but still an approximation).</li>
+      <li><strong>Capture instability.</strong> Recording at 1280×720&nbsp;@&nbsp;30&nbsp;fps
+        overloaded the robot's Raspberry Pi and dropped frames; downsampling to
+        640×480&nbsp;@&nbsp;15&nbsp;fps fixed it, but some frames are still dropped across all
+        sequences.</li>
+      <li><strong>Runtime fragility.</strong> Streaming the dataset off the Google Drive FUSE mount
+        crashed runs (I/O rate-limiting); data had to be staged to the Colab runtime's local disk,
+        and long runs depended on checkpoint resumes to survive disconnects.</li>
+      <li><strong>Zero-prior tracking only.</strong> Camera poses are estimated purely from dense
+        RGB-D alignment with no odometry or motion prior, which is the main source of drift in
+        large, low-texture spaces.</li>
     </ul>
   </section>
 
   <!-- ===================== FUTURE WORK ===================== -->
   <section id="future">
     <h2>Future Work</h2>
-    <ul class="placeholder-list">
-      <li><span class="placeholder">TODO: e.g. integrate with a navigation / planning stack.</span></li>
-      <li><span class="placeholder">TODO: better depth filtering or pose priors from odometry.</span></li>
-      <li><span class="placeholder">TODO: add more / longer sequences.</span></li>
+    <ul>
+      <li><strong>Add real ground truth.</strong> Fix the LiDAR <code>/scan</code> QoS so it records,
+        or add a motion-capture / VIO reference, to evaluate ATE properly instead of marking it
+        N/A.</li>
+      <li><strong>Inject pose priors.</strong> Seed SplaTAM tracking with wheel odometry or VIO
+        rather than zero-prior alignment, to cut drift in large open scenes.</li>
+      <li><strong>Depth-aware capture &amp; filtering.</strong> Constrain capture to the D455's
+        reliable range and add depth outlier filtering / confidence masking for open environments.</li>
+      <li><strong>Investigate the robot-desk anomaly.</strong> Pin down the proximity / reflective-
+        surface cause behind seq4's degraded depth validity.</li>
+      <li><strong>Broaden the matrix.</strong> Capture more and longer sequences across the
+        platform × topology grid, and run them in parallel on higher-VRAM hardware (e.g. A100).</li>
+      <li><strong>Close the navigation loop.</strong> Feed the reconstructed Gaussian map into a
+        downstream planning / navigation stack — the original motivation for the project.</li>
     </ul>
   </section>
 
   <!-- ===================== TEAM ===================== -->
   <section id="team">
     <h2>Team &amp; Contributions</h2>
-    <div class="placeholder-box small">
-      <span>TODO: team member names and who did what</span>
-    </div>
+    <ul>
+      <li>Sharmeen Kazi — <span class="placeholder">TODO: contributions</span></li>
+      <li>Aryan Sharma — <span class="placeholder">TODO: contributions</span></li>
+    </ul>
   </section>
 
   <!-- ===================== REFERENCES ===================== -->
