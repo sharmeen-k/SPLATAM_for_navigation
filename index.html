@@ -92,35 +92,35 @@
     </ol>
     <pre class="diagram-ascii" aria-label="Project workflow diagram">
  ┌──────────────────────────┐
- │  Intel RealSense D455     │   handheld  OR  TurtleBot3-mounted
- │  RGB-D @ 640x480, 15 fps  │
+ │  Intel RealSense D455    │   handheld  OR  TurtleBot3-mounted
+ │  RGB-D @ 640x480, 15 fps │
  └─────────────┬────────────┘
                │  record in ROS 2
                ▼
  ┌──────────────────────────┐
- │      .mcap  bag file       │   (RGB + depth + CameraInfo topics)
+ │      .mcap  bag file     │   (RGB + depth + CameraInfo topics)
  └─────────────┬────────────┘
                │  mcap2dataset.py
                ▼
  ┌─────────────────────────────────────────────────────────────┐
- │  undistort RGB  →  reproject depth into color frame           │
- │  rescale depth (÷ 6553.5)  →  time-sync RGB/depth (30 ms)     │
+ │  undistort RGB  →  reproject depth into color frame         │
+ │  rescale depth (÷ 6553.5)  →  time-sync RGB/depth (30 ms)   │
  └─────────────┬───────────────────────────────────────────────┘
                ▼
  ┌──────────────────────────┐
- │  NeRFCapture dataset       │   rgb/   depth/   transforms.json
- │  (identity poses)          │   →  stage to local disk*
+ │  NeRFCapture dataset     │   rgb/   depth/   transforms.json
+ │  (identity poses)        │   →  stage to local disk*
  └─────────────┬────────────┘
                │  zero-prior RGB-D SLAM
                ▼
  ┌──────────────────────────┐
- │  SplaTAM                   │   joint camera tracking + 3D
- │  track + map               │   Gaussian mapping  →  params.npz
+ │  SplaTAM                 │   joint camera tracking + 3D
+ │  track + map             │   Gaussian mapping  →  params.npz
  └─────────────┬────────────┘
                ▼
  ┌──────────────────────────┐
- │  Evaluation                │   PSNR · MS-SSIM · LPIPS ·
- │                            │   Depth-L1 · ATE
+ │  Evaluation              │   PSNR · MS-SSIM · LPIPS ·
+ │                          │   Depth-L1 · ATE
  └──────────────────────────┘
 
  * staging to the runtime's local disk avoids the Google Drive FUSE
