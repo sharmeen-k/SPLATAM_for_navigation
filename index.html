@@ -23,6 +23,7 @@
     <nav class="links">
       <a class="btn" href="https://github.com/sharmeen-k/SPLATAM_for_navigation">GitHub Repo</a>
       <a class="btn" href="splatam_paper.pdf">SplaTAM Paper (PDF)</a>
+      <a class="btn" href="#demo">Demo Video</a>
       <a class="btn" href="#results">Results</a>
       <a class="btn" href="#limitations">Limitations</a>
     </nav>
@@ -57,6 +58,19 @@
       Intel RealSense D455. This lets us ask which matters more for Gaussian-Splatting SLAM:
       how the camera moves, or what the scene looks like.
     </p>
+  </section>
+
+  <!-- ===================== DEMO VIDEO ===================== -->
+  <section id="demo">
+    <h2>Demo Video</h2>
+    <p>
+      A walkthrough of the project — the capture setup, the data pipeline, and SplaTAM
+      reconstructions across our custom sequences.
+    </p>
+    <div class="video-frame">
+      <iframe src="https://drive.google.com/file/d/1AhS9eUnLz8Cl7173acQoYZENOlslQuW9/preview"
+              allow="autoplay" allowfullscreen></iframe>
+    </div>
   </section>
 
   <!-- ===================== METHOD / PIPELINE ===================== -->
@@ -138,8 +152,15 @@
       Paper vs. ours on <code>room0</code>: PSNR 33.18 / 32.82 · SSIM 0.972 / 0.977 · LPIPS 0.074 / 0.072.
     </p>
 
+    <div class="gallery">
+      <figure>
+        <video controls muted playsinline preload="metadata" src="assets/reconstructed_office0.mp4"></video>
+        <figcaption>Replica office0 — high-fidelity baseline reconstruction (PSNR 38.7).</figcaption>
+      </figure>
+    </div>
+
     <p>
-      However, while running SPLATAM on <code>office0</code>, processing slowed down significantly. 
+      However, while running SPLATAM on <code>office0</code>, processing slowed down significantly.
       <code>office0</code> ran about 1.5× slower per frame than room0 (~3.7 hrs vs ~5.5 hrs over 
       2000 frames).
     </p>
@@ -220,10 +241,6 @@
       <figure>
         <video controls muted playsinline preload="metadata" src="assets/reconstructed_seq2_handheld_desk.mp4"></video>
         <figcaption>seq2 (handheld, desk) — sharpest reconstruction of the set (PSNR 26.2).</figcaption>
-      </figure>
-      <figure>
-        <video controls muted playsinline preload="metadata" src="assets/reconstructed_office0.mp4"></video>
-        <figcaption>Replica office0 — high-fidelity baseline reconstruction (PSNR 38.7).</figcaption>
       </figure>
     </div>
 
