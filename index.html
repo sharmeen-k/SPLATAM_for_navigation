@@ -169,8 +169,8 @@
 
     <div class="gallery">
       <figure>
-        <video controls muted playsinline preload="metadata" src="assets/reconstructed_office0.mp4"></video>
-        <figcaption>Replica office0: high-fidelity baseline reconstruction (PSNR 38.7).</figcaption>
+        <video controls muted playsinline preload="metadata" src="assets/reconstructed_room0.mp4"></video>
+        <figcaption>Replica room0: high-fidelity baseline reconstruction (PSNR 32.8).</figcaption>
       </figure>
     </div>
 
@@ -221,6 +221,13 @@
       </p>
     </div>
 
+    <div class="gallery">
+      <figure>
+        <video controls muted playsinline preload="metadata" src="assets/reconstructed_office0.mp4"></video>
+        <figcaption>Replica office0: high-fidelity baseline reconstruction (PSNR 38.7).</figcaption>
+      </figure>
+    </div>
+
     <h3>Custom sequences: full SLAM (zero-prior tracking)</h3>
     <p class="muted">
       The 2&times;2 matrix: platform (handheld / robot) &times; topology (open lab / bounded desk).
@@ -267,8 +274,7 @@
       isn't far behind. The lab's open ranges exceed the D455's reliable depth window, so depth
       returns get noisy, Gaussian initialization is poor, and trajectory drift follows. The
       handheld sequences carry <em>no ground-truth trajectory</em> (all-identity poses, and the
-      LiDAR <code>/scan</code> topic recorded zero messages), so their ATE is not reported rather
-      than trusted.
+      LiDAR <code>/scan</code> topic recorded zero messages), so their ATE is not reported.
     </p>
     <div class="gallery">
       <figure>
