@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SplaTAM for Navigation — EE243 Project</title>
 <meta name="description" content="Testing SplaTAM (Gaussian Splatting RGB-D SLAM) on custom RealSense footage for indoor robot navigation. EE243 Computer Vision project." />
-<link rel="stylesheet" href="style.css?v=5" />
+<link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
 
@@ -228,6 +228,39 @@
   <!-- ===================== LIMITATIONS ===================== -->
   <section id="limitations">
     <h2>Limitations</h2>
+
+    <div class="callout">
+      <h3>Unbounded Gaussian growth (map bloat)</h3>
+      <p>
+        SplaTAM's map <em>is</em> its collection of 3D Gaussians, and it adds a new Gaussian at
+        every pixel the current map doesn't already explain — wherever the rendered silhouette
+        falls below 0.5, or the depth error is large. In a small bounded scene this saturates after
+        the first few frames; in a large scene the camera keeps revealing new geometry (much of it
+        beyond the D455's reliable depth range, so it is seeded at noisy positions), and the map
+        never stops growing. Pruning doesn't keep pace with densification.
+      </p>
+      <p>
+        Our clearest evidence is the <strong>Replica office0</strong> baseline. Our diagnostics show
+        the map already holding <strong>≈4.96M Gaussians at frame&nbsp;800</strong> and still
+        climbing at <strong>~1,000 Gaussians per frame</strong> to <strong>≈5.40M by
+        frame&nbsp;1200</strong> — with the saved checkpoint growing from <strong>238&nbsp;MB to
+        259&nbsp;MB</strong> over the same span, and still rising through the end of the
+        2000-frame run.
+      </p>
+      <p>
+        Because every frame must rasterize and optimize the <em>entire</em> map, per-frame compute
+        climbs as the map grows. Over the final stretch of the office0 run (frames 1200–1999) the
+        cost averaged <strong>3.74&nbsp;s/frame tracking + 6.12&nbsp;s/frame mapping (≈10&nbsp;s per
+        frame)</strong> — roughly <strong>8× slower</strong> than the ~1.2&nbsp;s/frame we measured
+        on the small, bounded custom scenes.
+      </p>
+      <p class="muted">
+        This is a limitation the SplaTAM authors acknowledge, and it shows up directly in our own
+        data: the open-lab sequences carry far heavier maps than the bounded-desk sequences, which
+        is part of why the lab scenes degrade and slow down.
+      </p>
+    </div>
+
     <ul>
       <li><strong>No independent ground truth.</strong> The custom sequences have all-identity
         poses in <code>transforms.json</code> and no VIO prior, and the LiDAR <code>/scan</code>
